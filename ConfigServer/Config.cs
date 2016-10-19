@@ -10,18 +10,18 @@ namespace ConfigServer
 {
     class Config
     {
-        private Dictionary<Socket, int> msList ;
+        private Dictionary<Socket, IPAddress> msList ;
 
         public Config()
         {
-            msList = new Dictionary<Socket, int>();
+            msList = new Dictionary<Socket, IPAddress>();
         }
         
         public bool InsertMS(Socket socket)
         {
             try
             {
-                msList.Add(socket, msList.Count);
+                msList.Add(socket, IPAddress.Parse(socket.RemoteEndPoint.ToString().Split(':')[0]));
                 return true;
             }
             catch
@@ -45,15 +45,25 @@ namespace ConfigServer
 
         }
 
-        public List<string> GetAddressList()
+        /// <summary>
+        /// return EndPoint(ip:port) list
+        /// </summary>
+        /// <returns></returns>
+        public List<IPAddress> GetAddressList()
         {
-            List<string> addrList = new List<string>();
-            for (int i = 0; i < msList.Count; i++)
+            List<IPAddress> addrList = new List<IPAddress>();
+            foreach(var item in msList)
             {
-                addrList.Add(msList)
+                addrList.Add(item.Value);
             }
-            return 
+            return addrList;
         }
+
+        public int GetCount()
+        {
+            return msList.Count;
+        }
+
 
     }
 }
