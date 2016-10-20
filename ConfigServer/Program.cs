@@ -11,6 +11,7 @@ namespace ConfigServer
     class Program
     {
         private static bool isclosing = false;
+        static SocketManager conn;
 
         static void Main(string[] args)
         {
@@ -18,7 +19,7 @@ namespace ConfigServer
 
             int port = int.Parse(ConfigurationManager.AppSettings.Get("port"));
 
-            Connection conn = new Connection(port);
+            conn = new SocketManager(port);
         }
 
         #region unmanaged
@@ -47,7 +48,8 @@ namespace ConfigServer
 
         private static bool ConsoleCtrlCheck(CtrlTypes ctrlType)
         {
-            // Put your own handler here
+            conn.Stop();
+
             switch (ctrlType)
             {
                 case CtrlTypes.CTRL_C_EVENT:
