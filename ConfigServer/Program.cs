@@ -20,6 +20,7 @@ namespace ConfigServer
             int port = int.Parse(ConfigurationManager.AppSettings.Get("port"));
 
             conn = new SocketManager(port);
+            conn.Start();
         }
 
         #region unmanaged

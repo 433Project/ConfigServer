@@ -17,9 +17,6 @@ namespace ConfigServer
         private int backlog = 10;
         public bool listening;
 
-
-        Task<Socket> acceptTask = null;
-
         Config conf;
         List<IPAddress> list;
 
@@ -30,8 +27,6 @@ namespace ConfigServer
 
             conf = new Config();
             list = null;
-
-            Start();
         }
 
         public void Stop()
@@ -39,7 +34,7 @@ namespace ConfigServer
             listening = false;
         }
 
-        private void Start()
+        public void Start()
         {
             Console.WriteLine("#############################################################");
             Console.WriteLine("#####################=================#######################");
@@ -51,8 +46,7 @@ namespace ConfigServer
 
             while (listening)
             {
-                if(acceptTask == null || acceptTask.IsCompleted)
-                    Accept();
+                Accept();
             }
         }
 
@@ -68,19 +62,19 @@ namespace ConfigServer
             Console.WriteLine("===> Waiting for Match Server's connection....");
         }
 
-        private async void Accept()
+        private void Accept()
         {
             try
             {
                 Task<Socket> receiveTask = null;
                 
-                Socket mServer = await AcceptAsync();
+                Socket mServer = listenSocket.Accept();
                 Console.WriteLine("===> New Match Server({0}) is connected....", mServer.RemoteEndPoint);
 
+                List<IPAddress> list = conf.GetAddressList();
                 conf.InsertMS(mServer);
-
-                Receive(mServer, receiveTask);
-                   
+                
+                Receive(mServer, receiveTask, list);   
             }
             catch (Exception e)
             {
@@ -88,34 +82,14 @@ namespace ConfigServer
             }
         }
 
-        private Task<Socket> AcceptAsync()
-        {
-            acceptTask = Task.Run<Socket>(() =>
-            {
-                Socket socket;
-                try
-                {
-                    socket = listenSocket.Accept();
-                }
-                catch (Exception e)
-                {
-                    socket = null;
-                    Console.WriteLine("[Server][Accept]  error, code : {0}", e.ToString());
-                }
-
-                return socket;
-            });
-            return acceptTask;
-        }
-
-        private async void Receive(Socket socket, Task receiveTask)
+        private async void Receive(Socket socket, Task receiveTask, List<IPAddress> list)
         {
             while (socket != null && socket.Connected)
             {
                 try
                 {
                     if (receiveTask == null || receiveTask.IsCompleted)
-                    {
+                    { 
                         // returnType xxx = await Task.Run<returnType>(() => ReceiveAsync(socket));
                     }
                 }
@@ -126,12 +100,12 @@ namespace ConfigServer
             }
         }
 
-      /*  private returnType ReceiveAsync(Socket socket)
+      /*  
+         private returnType ReceiveAsync(Socket socket)
         {
             byte[] buffer = new byte[HEAD_SIZE];
 
             int readBytes = socket.Receive(buffer);
-
         }
         */
     }

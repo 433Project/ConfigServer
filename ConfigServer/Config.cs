@@ -11,17 +11,21 @@ namespace ConfigServer
     class Config
     {
         private Dictionary<Socket, IPAddress> msList ;
+        private List<IPAddress> msIPList;
 
         public Config()
         {
             msList = new Dictionary<Socket, IPAddress>();
+            msIPList = new List<IPAddress>();
         }
         
         public bool InsertMS(Socket socket)
         {
             try
             {
-                msList.Add(socket, IPAddress.Parse(socket.RemoteEndPoint.ToString().Split(':')[0]));
+                IPAddress ip = IPAddress.Parse(socket.RemoteEndPoint.ToString().Split(':')[0]);
+                msList.Add(socket, ip);
+                msIPList.Add(ip);
                 return true;
             }
             catch
@@ -36,6 +40,7 @@ namespace ConfigServer
             try
             {
                 msList.Remove(socket);
+                msIPList.Remove(IPAddress.Parse(socket.RemoteEndPoint.ToString().Split(':')[0]));
                 return true;
             }
             catch
@@ -51,12 +56,7 @@ namespace ConfigServer
         /// <returns></returns>
         public List<IPAddress> GetAddressList()
         {
-            List<IPAddress> addrList = new List<IPAddress>();
-            foreach(var item in msList)
-            {
-                addrList.Add(item.Value);
-            }
-            return addrList;
+            return msIPList;
         }
 
         public int GetCount()
