@@ -45,7 +45,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+<<<<<<< HEAD
     <Compile Include="Protocol.cs" />
+=======
+>>>>>>> 62265c4a34941416f1126d14f92ba3e1353f185c
     <Compile Include="SocketManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

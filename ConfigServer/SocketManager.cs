@@ -11,8 +11,11 @@ namespace ConfigServer
 
     class SocketManager
     {
+<<<<<<< HEAD
         int HEAD_SIZE = 20;
 
+=======
+>>>>>>> 62265c4a34941416f1126d14f92ba3e1353f185c
         private Socket listenSocket;
         private int port;
 
@@ -69,14 +72,23 @@ namespace ConfigServer
             try
             {
                 Task<Socket> receiveTask = null;
+<<<<<<< HEAD
 
+=======
+                
+>>>>>>> 62265c4a34941416f1126d14f92ba3e1353f185c
                 Socket mServer = listenSocket.Accept();
                 Console.WriteLine("===> New Match Server({0}) is connected....", mServer.RemoteEndPoint);
 
                 List<IPAddress> list = conf.GetAddressList();
                 conf.InsertMS(mServer);
+<<<<<<< HEAD
 
                 Receive(mServer, receiveTask, list);
+=======
+                
+                Receive(mServer, receiveTask, list);   
+>>>>>>> 62265c4a34941416f1126d14f92ba3e1353f185c
             }
             catch (Exception e)
             {
@@ -91,6 +103,7 @@ namespace ConfigServer
                 try
                 {
                     if (receiveTask == null || receiveTask.IsCompleted)
+<<<<<<< HEAD
                     {
                         bool result = await Task.Run<bool>(() => ReceiveAsync(socket, list));
                        // if (result)
@@ -98,12 +111,20 @@ namespace ConfigServer
                     }
                 }
                 catch (SocketException)
+=======
+                    { 
+                        // returnType xxx = await Task.Run<returnType>(() => ReceiveAsync(socket));
+                    }
+                }
+                catch(SocketException)
+>>>>>>> 62265c4a34941416f1126d14f92ba3e1353f185c
                 {
 
                 }
             }
         }
 
+<<<<<<< HEAD
 
         private bool ReceiveAsync(Socket socket, List<IPAddress> list)
         {
@@ -123,5 +144,15 @@ namespace ConfigServer
             //else 
                 //return false
         }
+=======
+      /*  
+         private returnType ReceiveAsync(Socket socket)
+        {
+            byte[] buffer = new byte[HEAD_SIZE];
+
+            int readBytes = socket.Receive(buffer);
+        }
+        */
+>>>>>>> 62265c4a34941416f1126d14f92ba3e1353f185c
     }
 }
