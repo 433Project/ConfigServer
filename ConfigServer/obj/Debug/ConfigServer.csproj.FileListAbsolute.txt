@@ -1,6 +1,6 @@
 c:\users\yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\ConfigServer.exe.config
-C:\Users\Yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\obj\Debug\ConfigServer.csprojResolveAssemblyReference.cache
 C:\Users\Yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\ConfigServer.exe
 C:\Users\Yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\ConfigServer.pdb
 C:\Users\Yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\obj\Debug\ConfigServer.exe
 C:\Users\Yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\obj\Debug\ConfigServer.pdb
+C:\Users\Yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\obj\Debug\ConfigServer.csprojResolveAssemblyReference.cache
