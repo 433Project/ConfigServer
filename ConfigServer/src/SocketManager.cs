@@ -121,6 +121,7 @@ namespace ConfigServer
             int readBytes = socket.Receive(packet);
             if (readBytes == 0)
             {
+                conf.DeleteMS(socket);
                 socket.Close();
                 return false;
             }
@@ -145,7 +146,8 @@ namespace ConfigServer
                         {
                             if (s == socket)
                                 continue;
-                            byte[] buf = MakeBody(fb.Command.MSLIST_RESPONSE, fb.Status.SUCCESS, s.RemoteEndPoint.ToString().Split(':')[0]);
+                            string data = s.RemoteEndPoint.ToString().Split(':')[0];
+                            byte[] buf = MakeBody(fb.Command.MSLIST_RESPONSE, fb.Status.SUCCESS, data );
                             h = new Header(buf.Length, SrcDstType.CONFIG_SERVER, 0, SrcDstType.MATCHING_SERVER, 0);
                             byte[] head = p.StructureToByte(h);
                             socket.Send(MakePacket(head, buf));
