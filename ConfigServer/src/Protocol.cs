@@ -24,7 +24,7 @@ namespace ConfigServer
     {
         MATCHING_SERVER = 0,
         MATCHING_CLIENT,
-        ROOM_MANAGER,
+        ROOM_SERVER,
         PACKET_GENERATOR,
         MONITORING_SERVER,
         CONFIG_SERVER,

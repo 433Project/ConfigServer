@@ -10,22 +10,21 @@ namespace ConfigServer
 {
     class Config
     {
-        private Dictionary<Socket, IPAddress> msList ;
-        private List<IPAddress> msIPList;
+        private Dictionary<Socket, int> msList ;
+        private int id;
 
         public Config()
         {
-            msList = new Dictionary<Socket, IPAddress>();
-            msIPList = new List<IPAddress>();
+            msList = new Dictionary<Socket, int>();
+            id = 0;
         }
         
         public bool InsertMS(Socket socket)
         {
             try
             {
-                IPAddress ip = IPAddress.Parse(socket.RemoteEndPoint.ToString().Split(':')[0]);
-                msList.Add(socket, ip);
-                msIPList.Add(ip);
+                msList.Add(socket, id);
+                id++;
                 return true;
             }
             catch
@@ -40,7 +39,6 @@ namespace ConfigServer
             try
             {
                 msList.Remove(socket);
-                msIPList.Remove(IPAddress.Parse(socket.RemoteEndPoint.ToString().Split(':')[0]));
                 return true;
             }
             catch
@@ -54,14 +52,19 @@ namespace ConfigServer
         /// return EndPoint(ip:port) list
         /// </summary>
         /// <returns></returns>
-        public List<IPAddress> GetAddressList()
+        public Dictionary<Socket, int> GetAddressList()
         {
-            return msIPList;
+            return msList;
         }
-
-        public int GetCount()
+        
+        public int GetID(Socket s)
         {
-            return msList.Count;
+            int value;
+
+            if (msList.TryGetValue(s, out value))
+                return value;
+            else
+                return -1;
         }
 
 

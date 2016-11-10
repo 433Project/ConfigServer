@@ -15,13 +15,13 @@ public struct Body : IFlatbufferObject
   public void __init(int _i, ByteBuffer _bb) { __p.bb_pos = _i; __p.bb = _bb; }
   public Body __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public Command Cmd { get { int o = __p.__offset(4); return o != 0 ? (Command)__p.bb.GetInt(o + __p.bb_pos) : Command.MATCH_REQUEST; } }
+  public Command Cmd { get { int o = __p.__offset(4); return o != 0 ? (Command)__p.bb.GetInt(o + __p.bb_pos) : Command.HEALTH_CHECK; } }
   public Status Status { get { int o = __p.__offset(6); return o != 0 ? (Status)__p.bb.GetInt(o + __p.bb_pos) : Status.SUCCESS; } }
   public string Data { get { int o = __p.__offset(8); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
   public ArraySegment<byte>? GetDataBytes() { return __p.__vector_as_arraysegment(8); }
 
   public static Offset<Body> CreateBody(FlatBufferBuilder builder,
-      Command cmd = Command.MATCH_REQUEST,
+      Command cmd = Command.HEALTH_CHECK,
       Status status = Status.SUCCESS,
       StringOffset dataOffset = default(StringOffset)) {
     builder.StartObject(3);

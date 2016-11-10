@@ -22,7 +22,7 @@ namespace ConfigServer
         Protocol p = new Protocol();
         Config conf;
 
-        List<IPAddress> list;
+        Dictionary<Socket, int> list;
 
         int HEAD_SIZE = 20;
         int PACKET_SIZE = 100;
@@ -77,10 +77,17 @@ namespace ConfigServer
 
                 Socket mServer = listenSocket.Accept();
                 Console.WriteLine("===> New Match Server({0}) is connected....", mServer.RemoteEndPoint);
-
-                List<IPAddress> list = conf.GetAddressList();
+                list = conf.GetAddressList();
                 conf.InsertMS(mServer);
 
+                int id = conf.GetID(mServer);
+                byte[] buf = MakeBody(fb.Command.MS_ID, fb.Status.NONE, id.ToString());
+                 
+                Header h = new Header(buf.Length, SrcDstType.CONFIG_SERVER, 0, SrcDstType.MATCHING_SERVER, 0);
+                byte[] head = p.StructureToByte(h);
+                mServer.Send(MakePacket(head, buf));
+
+                
                 Receive(mServer, receiveTask, list);
             }
             catch (Exception e)
@@ -89,7 +96,7 @@ namespace ConfigServer
             }
         }
 
-        private async void Receive(Socket socket, Task receiveTask, List<IPAddress> list)
+        private async void Receive(Socket socket, Task receiveTask, Dictionary<Socket, int> list)
         {
             while (socket != null && socket.Connected)
             {
@@ -107,7 +114,7 @@ namespace ConfigServer
             }
         }
 
-        private bool ReceiveAsync(Socket socket, List<IPAddress> list)
+        private bool ReceiveAsync(Socket socket, Dictionary<Socket, int> list)
         {
             Console.WriteLine("\n===> Receiving from Match Server({0})....", socket.RemoteEndPoint);
             byte[] packet = new byte[PACKET_SIZE];
@@ -134,9 +141,11 @@ namespace ConfigServer
                     
                     if (list.Count != 0)
                     {
-                        foreach(IPAddress ip in list)
+                        foreach(Socket s in list.Keys)
                         {
-                            byte[] buf = MakeBody(fb.Command.MSLIST_RESPONSE, fb.Status.SUCCESS, ip.ToString());
+                            if (s == socket)
+                                continue;
+                            byte[] buf = MakeBody(fb.Command.MSLIST_RESPONSE, fb.Status.SUCCESS, s.RemoteEndPoint.ToString().Split(':')[0]);
                             h = new Header(buf.Length, SrcDstType.CONFIG_SERVER, 0, SrcDstType.MATCHING_SERVER, 0);
                             byte[] head = p.StructureToByte(h);
                             socket.Send(MakePacket(head, buf));
