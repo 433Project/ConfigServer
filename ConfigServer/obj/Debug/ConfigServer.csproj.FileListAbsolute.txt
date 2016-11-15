@@ -3,4 +3,6 @@ C:\Users\Yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServe
 C:\Users\Yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\ConfigServer.pdb
 C:\Users\Yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\obj\Debug\ConfigServer.exe
 C:\Users\Yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\obj\Debug\ConfigServer.pdb
+C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\Newtonsoft.Json.xml
 C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\obj\Debug\ConfigServer.csprojResolveAssemblyReference.cache

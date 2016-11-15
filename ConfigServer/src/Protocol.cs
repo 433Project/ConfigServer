@@ -29,7 +29,7 @@ namespace ConfigServer
         MONITORING_SERVER,
         CONFIG_SERVER,
         CONNECTION_SERVER
-    };
+    }
 
     class Protocol
     {

@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 using FlatBuffers;
 using fb;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace ConfigServer
 {
@@ -81,7 +83,7 @@ namespace ConfigServer
                 conf.InsertMS(mServer);
 
                 int id = conf.GetID(mServer);
-                byte[] buf = MakeBody(fb.Command.MS_ID, fb.Status.NONE, id.ToString());
+                byte[] buf = MakeBody(fb.Command.MS_ID, fb.Status.NONE, id.ToString(), "");
                  
                 Header h = new Header(buf.Length, SrcDstType.CONFIG_SERVER, 0, SrcDstType.MATCHING_SERVER, 0);
                 byte[] head = p.StructureToByte(h);
@@ -139,23 +141,26 @@ namespace ConfigServer
                 var b = Body.GetRootAsBody(new ByteBuffer(body));
                 if (b.Cmd == fb.Command.MSLIST_REQUEST)
                 {
-                    
                     if (list.Count != 0)
                     {
+                        Console.WriteLine("======================================");
+                        Console.Write("MS List : ");
                         foreach(Socket s in list.Keys)
                         {
+                            Console.Write(list[s] + " ");
                             if (s == socket)
                                 continue;
-                            string data = s.RemoteEndPoint.ToString().Split(':')[0];
-                            byte[] buf = MakeBody(fb.Command.MSLIST_RESPONSE, fb.Status.SUCCESS, data );
+                            
+                            byte[] buf = MakeBody(fb.Command.MSLIST_RESPONSE, fb.Status.SUCCESS, list[s].ToString(), s.RemoteEndPoint.ToString().Split(':')[0]);
                             h = new Header(buf.Length, SrcDstType.CONFIG_SERVER, 0, SrcDstType.MATCHING_SERVER, 0);
                             byte[] head = p.StructureToByte(h);
                             socket.Send(MakePacket(head, buf));
                         }
+                        Console.WriteLine("\n======================================");
                     }
                     else
                     {
-                        byte[] buf = MakeBody(fb.Command.MSLIST_RESPONSE, fb.Status.FAIL, "");
+                        byte[] buf = MakeBody(fb.Command.MSLIST_RESPONSE, fb.Status.FAIL, "", "");
                         h = new Header(buf.Length, SrcDstType.CONFIG_SERVER, 0, SrcDstType.MATCHING_SERVER, 0);
                         byte[] head = p.StructureToByte(h);
                         socket.Send(MakePacket(head, buf));
@@ -174,14 +179,16 @@ namespace ConfigServer
             return false;
         }
 
-        private byte[] MakeBody(fb.Command com, fb.Status st, string data)
+        private byte[] MakeBody(fb.Command com, fb.Status st, string data1, string data2)
         {
             FlatBufferBuilder builder = new FlatBufferBuilder(1);
-            StringOffset s = builder.CreateString(data);
+            StringOffset s1 = builder.CreateString(data1);
+            StringOffset s2 = builder.CreateString(data2);
             Body.StartBody(builder);
             Body.AddCmd(builder, com);
             Body.AddStatus(builder, st);
-            Body.AddData(builder, s);
+            Body.AddData1(builder, s1);
+            Body.AddData2(builder, s2);
             builder.Finish(Body.EndBody(builder).Value);
            return builder.SizedByteArray();
         }
