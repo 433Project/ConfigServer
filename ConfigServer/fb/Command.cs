@@ -3,7 +3,7 @@
 namespace fb
 {
 
-public enum Command : int
+public enum COMMAND : int
 {
  HEALTH_CHECK = 0,
  NOTI_MATCH_REQUEST = 10,

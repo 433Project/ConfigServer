@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace ConfigServer
 {
-    class MSList
+    class ProcessManager
     {
-        public int id { get; set; }
-        public string ip { get; set; }
+        public ProcessManager()
+        {
+
+        }
         
     }
 }

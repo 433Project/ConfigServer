@@ -1,4 +1,6 @@
-﻿using System;
+﻿using fb;
+using FlatBuffers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -6,10 +8,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-using FlatBuffers;
-using fb;
-using Newtonsoft.Json;
-using System.IO;
 
 namespace ConfigServer
 {
@@ -20,14 +18,14 @@ namespace ConfigServer
 
         private int backlog = 10;
         public bool listening;
-
-        Protocol p = new Protocol();
+        
+        int PACKET_SIZE = 100;
+        
         Config conf;
+        MessageManager mm;
 
         Dictionary<Socket, int> list;
-
-        int HEAD_SIZE = 20;
-        int PACKET_SIZE = 100;
+        Dictionary<Socket, int> heartBeatList;
 
         public SocketManager(int port)
         {
@@ -36,6 +34,9 @@ namespace ConfigServer
 
             conf = new Config();
             list = null;
+
+            mm = new MessageManager();
+            heartBeatList = new Dictionary<Socket, int>();
         }
 
         public void Stop()
@@ -61,14 +62,26 @@ namespace ConfigServer
 
         private void SetListenSocket(int port)
         {
-            IPEndPoint localEP = new IPEndPoint(IPAddress.Any, port);
+            try
+            {
+                IPEndPoint localEP = new IPEndPoint(IPAddress.Any, port);
 
-            listenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            listenSocket.Bind(localEP);
-            listenSocket.Listen(backlog);
-            Console.WriteLine("Listening on {0} port\n", port);
+                listenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                listenSocket.Bind(localEP);
+                listenSocket.Listen(backlog);
+                Console.WriteLine("Listening on {0} port\n", port);
 
-            Console.WriteLine("===> Waiting for Match Server's connection....");
+                Console.WriteLine("===> Waiting for Match Server's connection....");
+            }
+            catch (SocketException se)
+            {
+                Console.WriteLine(" {0}", se.ToString());
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(" {0}", e.ToString());
+            }
+            
         }
 
         private void Accept()
@@ -77,24 +90,29 @@ namespace ConfigServer
             {
                 Task<Socket> receiveTask = null;
 
-                Socket mServer = listenSocket.Accept();
-                Console.WriteLine("===> New Match Server({0}) is connected....", mServer.RemoteEndPoint);
-                list = conf.GetAddressList();
-                conf.InsertMS(mServer);
+                Socket ms = listenSocket.Accept();
+                Console.WriteLine("===> New Match Server({0}) is connected....", ms.RemoteEndPoint);
+                heartBeatList.Add(ms, 0);
 
-                int id = conf.GetID(mServer);
-                byte[] buf = MakeBody(fb.Command.MS_ID, fb.Status.NONE, id.ToString(), "");
+                list = conf.GetAddressList();
+                conf.InsertMS(ms);
+
+                int id = conf.GetID(ms);
+                byte[] buf = mm.MakeBody(fb.COMMAND.MS_ID, fb.STATUS.NONE, id.ToString(), "");
                  
                 Header h = new Header(buf.Length, SrcDstType.CONFIG_SERVER, 0, SrcDstType.MATCHING_SERVER, 0);
-                byte[] head = p.StructureToByte(h);
-                mServer.Send(MakePacket(head, buf));
+                byte[] head = mm.StructureToByte(h);
+                ms.Send(mm.MakePacket(head, buf));
 
                 
-                Receive(mServer, receiveTask, list);
+                Receive(ms, receiveTask, list);
             }
             catch (Exception e)
             {
+                
                 Console.WriteLine("[Server][Accept]  error, code : {0}", e.ToString());
+
+
             }
         }
 
@@ -106,100 +124,143 @@ namespace ConfigServer
                 {
                     if (receiveTask == null || receiveTask.IsCompleted)
                     {
-                        bool result = await Task.Run<bool>(() => ReceiveAsync(socket, list));
+                        Packet? packet = await Task.Run<Packet?>(() => ReceiveAsync(socket));
+
+                        if (packet != null)
+                            Process(socket, packet.Value.body, list);
                     }
                 }
-                catch (SocketException)
+                catch (Exception)
                 {
 
                 }
             }
         }
 
-        private bool ReceiveAsync(Socket socket, Dictionary<Socket, int> list)
+        private Packet? ReceiveAsync(Socket socket)
         {
-            Console.WriteLine("\n===> Receiving from Match Server({0})....", socket.RemoteEndPoint);
-            byte[] packet = new byte[PACKET_SIZE];
-            int readBytes = socket.Receive(packet);
-            if (readBytes == 0)
+            try
             {
-                conf.DeleteMS(socket);
-                socket.Close();
-                return false;
-            }
+                Console.WriteLine("\n===> Receiving from Match Server({0})....", socket.RemoteEndPoint);
+                byte[] packet = new byte[PACKET_SIZE];
 
-            byte[] header = new byte[HEAD_SIZE];
-            Array.Copy(packet, header, HEAD_SIZE);            
-            Header h = (Header)p.ByteToStructure(header, typeof(Header));            
-            Console.WriteLine(h.lenght + " " + h.srcType + " " + h.srcCode + " " + h.dstType + " " + h.dstCode);
+                socket.ReceiveTimeout = 3000;
+                int readBytes = socket.Receive(packet);
 
-            if (h.lenght != 0)
-            {
-                byte[] body = new byte[h.lenght];
-                Array.Copy(packet, HEAD_SIZE, body, 0, h.lenght);
-
-                var b = Body.GetRootAsBody(new ByteBuffer(body));
-                if (b.Cmd == fb.Command.MSLIST_REQUEST)
+                if (readBytes == 0)
                 {
-                    if (list.Count != 0)
+                    Close(socket);
+                    return null;
+                }
+
+                heartBeatList[socket] = 0;
+
+                Packet p = new Packet();
+
+                mm.ReadPacket(packet, out p);
+
+                return p;
+            }
+            catch(SocketException se)
+            {
+                if (!socket.Connected)
+                {
+                    if (se.ErrorCode == 10060)
                     {
-                        Console.WriteLine("======================================");
-                        Console.Write("MS List : ");
-                        foreach(Socket s in list.Keys)
+                        if (++heartBeatList[socket] > 3)
                         {
-                            Console.Write(list[s] + " ");
-                            if (s == socket)
-                                continue;
-                            
-                            byte[] buf = MakeBody(fb.Command.MSLIST_RESPONSE, fb.Status.SUCCESS, list[s].ToString(), s.RemoteEndPoint.ToString().Split(':')[0]);
-                            h = new Header(buf.Length, SrcDstType.CONFIG_SERVER, 0, SrcDstType.MATCHING_SERVER, 0);
-                            byte[] head = p.StructureToByte(h);
-                            socket.Send(MakePacket(head, buf));
+                            Close(socket);
                         }
-                        Console.WriteLine("\n======================================");
+                        else
+                        {
+                            SendHeartBeat(socket);
+                        }
                     }
                     else
                     {
-                        byte[] buf = MakeBody(fb.Command.MSLIST_RESPONSE, fb.Status.FAIL, "", "");
-                        h = new Header(buf.Length, SrcDstType.CONFIG_SERVER, 0, SrcDstType.MATCHING_SERVER, 0);
-                        byte[] head = p.StructureToByte(h);
-                        socket.Send(MakePacket(head, buf));
+                        Console.WriteLine("[Server][Receive] {0}", se.ToString());
+                        Close(socket);
                     }
-
-
-                    Console.WriteLine("===> send message to Match Server({0})....", socket.RemoteEndPoint);
-                    return true;
                 }
-                else if (b.Cmd == fb.Command.HEALTH_CHECK)
-                {
-                    return true;
-                }
+
+                return null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("[Server][Receive] ", e.ToString());
+                Close(socket);
+                return null;
             }
             
-            return false;
         }
 
-        private byte[] MakeBody(fb.Command com, fb.Status st, string data1, string data2)
+        private void Close(Socket s)
         {
-            FlatBufferBuilder builder = new FlatBufferBuilder(1);
-            StringOffset s1 = builder.CreateString(data1);
-            StringOffset s2 = builder.CreateString(data2);
-            Body.StartBody(builder);
-            Body.AddCmd(builder, com);
-            Body.AddStatus(builder, st);
-            Body.AddData1(builder, s1);
-            Body.AddData2(builder, s2);
-            builder.Finish(Body.EndBody(builder).Value);
-           return builder.SizedByteArray();
+            conf.DeleteMS(s);
+            heartBeatList.Remove(s);
+            s.Close();
         }
 
-        private byte[] MakePacket(byte[] h, byte[] b)
+        private void SendHeartBeat(Socket s)
         {
-            byte[] p = new byte[PACKET_SIZE];
-            Array.Copy(h, p, h.Length);
-            Array.Copy(b, 0, p, h.Length, b.Length);
-            return p;
+            try
+            {
+                byte[] buf = mm.MakeBody(fb.COMMAND.HEALTH_CHECK, fb.STATUS.NONE, "", "");
+                Header h = new Header(buf.Length, SrcDstType.CONFIG_SERVER, 0, SrcDstType.MATCHING_SERVER, 0);
+                byte[] head = mm.StructureToByte(h);
+                s.Send(mm.MakePacket(head, buf));
+                Console.WriteLine("send heartbeat");
+
+            }
+            catch(Exception)
+            {
+                conf.DeleteMS(s);
+                heartBeatList.Remove(s);
+                s.Close();
+                Console.WriteLine("delete server");
+            }
+
+
+        }
+
+        private void Process(Socket s, Body b, Dictionary<Socket, int> list)
+        {
+            if (b.Cmd == fb.COMMAND.MSLIST_REQUEST)
+            {
+                if (list.Count != 0)
+                {
+                    Console.WriteLine("-------------------------");
+                    Console.Write("List : ");
+                    foreach (Socket soc in list.Keys)
+                    {
+                        Console.Write(list[soc] + " ");
+                        if (soc == s)
+                            continue;
+
+                        byte[] buf = mm.MakeBody(fb.COMMAND.MSLIST_RESPONSE, fb.STATUS.SUCCESS, list[s].ToString(), s.RemoteEndPoint.ToString().Split(':')[0]);
+                        Header h = new Header(buf.Length, SrcDstType.CONFIG_SERVER, 0, SrcDstType.MATCHING_SERVER, 0);
+                        byte[] head = mm.StructureToByte(h);
+                        s.Send(mm.MakePacket(head, buf));
+                    }
+                    Console.WriteLine("\n-------------------------");
+                }
+                else
+                {
+                    byte[] buf = mm.MakeBody(fb.COMMAND.MSLIST_RESPONSE, fb.STATUS.FAIL, "", "");
+                    Header h = new Header(buf.Length, SrcDstType.CONFIG_SERVER, 0, SrcDstType.MATCHING_SERVER, 0);
+                    byte[] head = mm.StructureToByte(h);
+                    s.Send(mm.MakePacket(head, buf));
+                }
+                Console.WriteLine("===> send message to Match Server({0})....", s.RemoteEndPoint);
+            }
+            else if (b.Cmd == fb.COMMAND.HEALTH_CHECK)
+            {
+                heartBeatList[s] = 0;
+                Console.WriteLine("recv heartbeat");
+            }
         }
 
     }
+
+    
 }
