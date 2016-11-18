@@ -10,20 +10,20 @@ namespace ConfigServer
 {
     class Config
     {
-        private Dictionary<Socket, int> msList ;
         private int id;
+        private Dictionary<Socket, int> serverList ; //socket, id
 
         public Config()
         {
-            msList = new Dictionary<Socket, int>();
+            serverList = new Dictionary<Socket, int>();
             id = 0;
         }
         
-        public bool InsertMS(Socket socket)
+        public bool InsertServer(Socket socket)
         {
             try
             {
-                msList.Add(socket, id);
+                serverList.Add(socket, id);
                 id++;
                 return true;
             }
@@ -34,11 +34,11 @@ namespace ConfigServer
             
         }
 
-        public bool DeleteMS(Socket socket)
+        public bool DeleteServer(Socket socket)
         {
             try
             {
-                msList.Remove(socket);
+                serverList.Remove(socket);
                 return true;
             }
             catch
@@ -54,17 +54,23 @@ namespace ConfigServer
         /// <returns></returns>
         public Dictionary<Socket, int> GetAddressList()
         {
-            return msList;
+            return serverList;
         }
         
         public int GetID(Socket s)
         {
             int value;
-
-            if (msList.TryGetValue(s, out value))
-                return value;
-            else
+            try
+            {
+                if (serverList.TryGetValue(s, out value))
+                    return value;
+                else
+                    return -1;
+            }
+            catch (Exception)
+            {
                 return -1;
+            }
         }
 
 

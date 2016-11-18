@@ -10,6 +10,7 @@ namespace ConfigServer
     {
         int PACKET_SIZE = 100;
         int HEAD_SIZE = 20;
+
         public MessageManager()
         {
         }
@@ -38,7 +39,6 @@ namespace ConfigServer
 
         public void ReadPacket(byte[] data, out Packet p)
         {
-            
             byte[] header = new byte[HEAD_SIZE];
             Array.Copy(data, header, HEAD_SIZE);
             p.header =  (Header)ByteToStructure(header, typeof(Header));

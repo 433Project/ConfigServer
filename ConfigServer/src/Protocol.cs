@@ -1,22 +1,21 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using fb;
 
 namespace ConfigServer
 {
     struct Packet
     {
         public Header header;
-        public fb.Body body;
+        public Body body;
     }
 
     struct Header
     {
         public int lenght;
-        public SrcDstType srcType;    
+        public TERMINALTYPE srcType;    
         public int srcCode;   
-        public SrcDstType dstType;    
+        public TERMINALTYPE dstType;    
         public int dstCode;
-        public Header(int len, SrcDstType srcType, int srcCode, SrcDstType dstType, int dstCode)
+        public Header(int len, TERMINALTYPE srcType, int srcCode, TERMINALTYPE dstType, int dstCode)
         {
             this.lenght = len;
             this.srcType = srcType;
@@ -26,7 +25,7 @@ namespace ConfigServer
         }    
     }
 
-    enum SrcDstType : int
+    enum TERMINALTYPE : int
     {
         MATCHING_SERVER = 0,
         MATCHING_CLIENT,
@@ -35,10 +34,5 @@ namespace ConfigServer
         MONITORING_SERVER,
         CONFIG_SERVER,
         CONNECTION_SERVER
-    }
-
-    class Protocol
-    {
-        
     }
 }

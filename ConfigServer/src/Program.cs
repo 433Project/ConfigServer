@@ -16,11 +16,13 @@ namespace ConfigServer
         static void Main(string[] args)
         {
             SetConsoleCtrlHandler(ConsoleCtrlCheck, true);
-
-            int port = int.Parse(ConfigurationManager.AppSettings.Get("port"));
-
-            conn = new SocketManager(port);
-            conn.Start();
+            conn = new SocketManager("MS");
+            while (!isclosing)
+            {
+                if (conn.Accept())
+                    break;
+            }
+            
         }
          
         #region unmanaged
@@ -49,7 +51,6 @@ namespace ConfigServer
 
         private static bool ConsoleCtrlCheck(CtrlTypes ctrlType)
         {
-            conn.Stop();
 
             switch (ctrlType)
             {
