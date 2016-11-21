@@ -62,13 +62,13 @@ namespace ConfigServer
         {
             try
             {
-                Task<Socket> receiveTask = null;
+               
                 Console.WriteLine("===> Waiting for Match Server's connection....");
                 Socket sock = listen.Accept();
                 Console.WriteLine("===> New Match Server({0}) is connected....", sock.RemoteEndPoint);
                 heartBeatList.Add(sock, 0);
                 process.ProcessAccept(sock, serverType);
-                Receive(sock, receiveTask);
+                Receive(sock);
                 return true;
             }
             catch (Exception e)
@@ -78,23 +78,24 @@ namespace ConfigServer
             }
         }
 
-        private async void Receive(Socket socket, Task receiveTask)
+        private async void Receive(Socket socket)
         {
+            Task<bool> receiveTask = ReceiveAsync(socket);
             while (socket != null && socket.Connected)
             {
                 try
                 {
                     if (receiveTask == null || receiveTask.IsCompleted)
                     {
-                        byte[] packet = await Task.Run<byte[]>(() => ReceiveAsync(socket));
-                        if(packet != null)
-                            process.Process(socket, packet);
+                        bool result  = await receiveTask;
                     }
                 }
-                catch (Exception)
+                catch (Exception e )
                 {
+                    Console.WriteLine(e.ToString());
                     if (socket != null)
                     {
+                        
                         Close(socket);
                         socket = null;
                     }
@@ -102,49 +103,55 @@ namespace ConfigServer
             }
         }
 
-        private byte[] ReceiveAsync(Socket socket)
+        private Task<bool> ReceiveAsync(Socket socket)
         {
-            try
+            Task<bool>  task = Task.Run(() =>
             {
-                Console.WriteLine("\n===> Receiving from Match Server({0})....", socket.RemoteEndPoint);
-                byte[] packet = new byte[PACKET_SIZE];
-
-                socket.ReceiveTimeout = 3000;
-                int readBytes = socket.Receive(packet);
-
-                if (readBytes == 0)
+                try
                 {
-                    Close(socket);
-                    return null;
-                }
+                    Console.WriteLine("\n===> Receiving from Match Server({0})....", socket.RemoteEndPoint);
+                    byte[] bytes = new byte[PACKET_SIZE];
+                    int readBytes = socket.Receive(bytes);
 
-                heartBeatList[socket] = 0;
-
-                return packet;
-            }
-            catch (SocketException se)
-            {
-                if (socket.Connected)
-                {
-                    if (se.ErrorCode == 10060)
+                    if (readBytes == 0)
                     {
-                        if (++heartBeatList[socket] > 3)
-                            throw;
-                        else
-                        {
-                            process.SendHeartBeat(socket);
-                            return null;
-                        } 
+                        Close(socket);
+                        return false;
                     }
+
+                    process.Process(socket, bytes);
+                    heartBeatList[socket] = 0;
+
+                    return true;
                 }
-                Console.WriteLine("[Server][Receive] {0}", se.ToString());
-                throw;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("[Server][Receive] {0}", e.ToString());
-                throw;
-            }
+                catch (SocketException se)
+                {
+                    if (socket.Connected)
+                    {
+                        //receive timeout
+                        if (se.ErrorCode == 10060)
+                        {
+                            if (++heartBeatList[socket] <= 3)
+                            {
+                                process.SendHeartBeat(socket);
+                                return true;
+                            }
+                        }
+                    }
+                    Console.WriteLine("===>recieve socket error : " + se.ToString());
+                    Close(socket);
+                    return false; 
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("===>recieve socket error : " + e.ToString());
+                    Close(socket);
+                    return false;
+                }
+            });
+            return task;
+               
+            
         }
 
 
