@@ -47,9 +47,8 @@ namespace ConfigServer
         {
             Packet p = new Packet();
             msg.ReadPacket(data, out p);
-            if (p.body.Cmd == COMMAND.HEALTH_CHECK)
-            {
-            }
+            if (p.body.Cmd == COMMAND.HEALTH_CHECK_RESPONSE)
+                ;
             else if (p.body.Cmd == fb.COMMAND.MSLIST_REQUEST)
             {
 
@@ -86,7 +85,7 @@ namespace ConfigServer
 
         public void SendHeartBeat(Socket s)
         {
-            byte[] buf = msg.MakeBody(COMMAND.HEALTH_CHECK, STATUS.NONE, "", "");
+            byte[] buf = msg.MakeBody(COMMAND.HEALTH_CHECK_REQUEST, STATUS.NONE, "", "");
             Header h = new Header(buf.Length, TERMINALTYPE.CONFIG_SERVER, 0, TERMINALTYPE.MATCHING_SERVER, 0);
             byte[] head = msg.StructureToByte(h);
             s.Send(msg.MakePacket(head, buf));

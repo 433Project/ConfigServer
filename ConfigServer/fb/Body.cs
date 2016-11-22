@@ -15,7 +15,7 @@ public struct Body : IFlatbufferObject
   public void __init(int _i, ByteBuffer _bb) { __p.bb_pos = _i; __p.bb = _bb; }
   public Body __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public COMMAND Cmd { get { int o = __p.__offset(4); return o != 0 ? (COMMAND)__p.bb.GetInt(o + __p.bb_pos) : COMMAND.HEALTH_CHECK; } }
+  public COMMAND Cmd { get { int o = __p.__offset(4); return o != 0 ? (COMMAND)__p.bb.GetInt(o + __p.bb_pos) : COMMAND.HEALTH_CHECK_REQUEST; } }
   public STATUS Status { get { int o = __p.__offset(6); return o != 0 ? (STATUS)__p.bb.GetInt(o + __p.bb_pos) : STATUS.SUCCESS; } }
   public string Data1 { get { int o = __p.__offset(8); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
   public ArraySegment<byte>? GetData1Bytes() { return __p.__vector_as_arraysegment(8); }
@@ -23,7 +23,7 @@ public struct Body : IFlatbufferObject
   public ArraySegment<byte>? GetData2Bytes() { return __p.__vector_as_arraysegment(10); }
 
   public static Offset<Body> CreateBody(FlatBufferBuilder builder,
-      COMMAND cmd = COMMAND.HEALTH_CHECK,
+      COMMAND cmd = COMMAND.HEALTH_CHECK_REQUEST,
       STATUS status = STATUS.SUCCESS,
       StringOffset data1Offset = default(StringOffset),
       StringOffset data2Offset = default(StringOffset)) {
