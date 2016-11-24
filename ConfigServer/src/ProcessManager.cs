@@ -10,7 +10,7 @@ namespace ConfigServer
     {
         MessageManager msg;
         Config config;
-        Dictionary<Socket, int> serverList;
+        Dictionary<int, string> serverList;
 
         public ProcessManager()
         {
@@ -25,22 +25,6 @@ namespace ConfigServer
             {
                 return;
             }
-
-            int id = config.GetID(s);
-
-            if (id == -1)
-            {
-                return;
-            }
-
-            if (serverType == "MS")
-            {
-                byte[] buf = msg.MakeBody(COMMAND.MS_ID, STATUS.NONE, id.ToString(), "");
-
-                Header h = new Header(buf.Length, TERMINALTYPE.CONFIG_SERVER, 0, TERMINALTYPE.MATCHING_SERVER, 0);
-                byte[] head = msg.StructureToByte(h);
-                s.Send(msg.MakePacket(head, buf));
-            }
         }
 
         public void Process(Socket s, byte[] data)
@@ -48,7 +32,24 @@ namespace ConfigServer
             Packet p = new Packet();
             msg.ReadPacket(data, out p);
             if (p.body.Cmd == COMMAND.HEALTH_CHECK_RESPONSE)
+            {
                 ;
+            }
+            else if (p.body.Cmd == COMMAND.MS_ID_REQUEST)
+            {
+                config.InsertPort(s, p.body.Data1);
+                int id = config.GetID(s);
+
+                if (id == -1)
+                {
+                    return;
+                }
+               
+                byte[] buf = msg.MakeBody(COMMAND.MS_ID_RESPONSE, STATUS.NONE, id.ToString(), "");
+                Header h = new Header(buf.Length, TERMINALTYPE.CONFIG_SERVER, 0, TERMINALTYPE.MATCHING_SERVER, 0);
+                byte[] head = msg.StructureToByte(h);
+                s.Send(msg.MakePacket(head, buf));
+            }
             else if (p.body.Cmd == fb.COMMAND.MSLIST_REQUEST)
             {
 
@@ -56,26 +57,20 @@ namespace ConfigServer
                 {
                     Console.WriteLine("-------------------------");
                     Console.Write("List : ");
-                    foreach (Socket soc in serverList.Keys)
+                    foreach (int id in serverList.Keys)
                     {
-                        if (soc == s)
-                            break;
-                        Console.Write(serverList[soc] + " ");
-                        byte[] buf = msg.MakeBody(COMMAND.MSLIST_RESPONSE, STATUS.SUCCESS, serverList[s].ToString(), s.RemoteEndPoint.ToString().Split(':')[0]);
+                        Console.Write(id + " ");
+                        if(id >= p.header.srcCode)
+                            continue;
+                        byte[] buf = msg.MakeBody(COMMAND.MSLIST_RESPONSE, STATUS.SUCCESS, id.ToString(), serverList[id]);
                         Header h = new Header(buf.Length, TERMINALTYPE.CONFIG_SERVER, 0, TERMINALTYPE.MATCHING_SERVER, 0);
                         byte[] head = msg.StructureToByte(h);
                         s.Send(msg.MakePacket(head, buf));
                     }
                     Console.WriteLine("\n-------------------------");
+                    Console.WriteLine("===> send message to Match Server({0})....", s.RemoteEndPoint);
                 }
-                else
-                {
-                    byte[] buf = msg.MakeBody(COMMAND.MSLIST_RESPONSE, STATUS.FAIL, "", "");
-                    Header h = new Header(buf.Length, TERMINALTYPE.CONFIG_SERVER, 0, TERMINALTYPE.MATCHING_SERVER, 0);
-                    byte[] head = msg.StructureToByte(h);
-                    s.Send(msg.MakePacket(head, buf));
-                }
-                Console.WriteLine("===> send message to Match Server({0})....", s.RemoteEndPoint);
+                
             }
             else
             {
@@ -93,7 +88,7 @@ namespace ConfigServer
 
         public void close(Socket s)
         {
-            //config.DeleteServer(s);
+            config.DeleteServer(s);
         }
     }
 }

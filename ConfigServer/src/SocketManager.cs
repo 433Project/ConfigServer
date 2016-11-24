@@ -80,13 +80,14 @@ namespace ConfigServer
 
         private async void Receive(Socket socket)
         {
-            Task<bool> receiveTask = ReceiveAsync(socket);
+            Task<bool> receiveTask = null;
             while (socket != null && socket.Connected)
             {
                 try
                 {
                     if (receiveTask == null || receiveTask.IsCompleted)
                     {
+                        receiveTask = ReceiveAsync(socket);
                         bool result  = await receiveTask;
                     }
                 }
@@ -95,9 +96,7 @@ namespace ConfigServer
                     Console.WriteLine(e.ToString());
                     if (socket != null)
                     {
-                        
                         Close(socket);
-                        socket = null;
                     }
                 }
             }
@@ -109,8 +108,9 @@ namespace ConfigServer
             {
                 try
                 {
-                    Console.WriteLine("\n===> Receiving from Match Server({0})....", socket.RemoteEndPoint);
+                    //Console.WriteLine("\n===> Receiving from Match Server({0})....", socket.RemoteEndPoint);
                     byte[] bytes = new byte[PACKET_SIZE];
+                    socket.ReceiveTimeout = 3 * 1000;
                     int readBytes = socket.Receive(bytes);
 
                     if (readBytes == 0)
@@ -136,6 +136,8 @@ namespace ConfigServer
                                 process.SendHeartBeat(socket);
                                 return true;
                             }
+                            Close(socket);
+                            return false;
                         }
                     }
                     Console.WriteLine("===>recieve socket error : " + se.ToString());
@@ -150,7 +152,6 @@ namespace ConfigServer
                 }
             });
             return task;
-               
             
         }
 
@@ -161,7 +162,6 @@ namespace ConfigServer
             process.close(s);
             heartBeatList.Remove(s);
             s.Close();
-            
         }
 
         

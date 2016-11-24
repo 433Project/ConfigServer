@@ -19,7 +19,7 @@ namespace ConfigServer
             conn = new SocketManager("MS");
             while (!isclosing)
             {
-                if (conn.Accept())
+                if (!conn.Accept())
                     break;
             }
             
