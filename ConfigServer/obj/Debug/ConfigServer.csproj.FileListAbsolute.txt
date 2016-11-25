@@ -1,10 +1,5 @@
-c:\users\yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\ConfigServer.exe.config
-C:\Users\Yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\ConfigServer.exe
-C:\Users\Yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\ConfigServer.pdb
-C:\Users\Yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\obj\Debug\ConfigServer.exe
-C:\Users\Yungyung\documents\visual studio 2015\Projects\ConfigServer\ConfigServer\obj\Debug\ConfigServer.pdb
-C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\Newtonsoft.Json.dll
-C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\Newtonsoft.Json.xml
-C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\log4net.dll
-C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\log4net.xml
-C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\obj\Debug\ConfigServer.csprojResolveAssemblyReference.cache
+C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\ConfigServer.exe.config
+C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\ConfigServer.exe
+C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\ConfigServer.pdb
+C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\obj\Debug\ConfigServer.exe
+C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\obj\Debug\ConfigServer.pdb

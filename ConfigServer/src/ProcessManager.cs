@@ -1,4 +1,5 @@
 ﻿using fb;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -8,6 +9,7 @@ namespace ConfigServer
 {
     class ProcessManager
     {
+        private static ILog logger = Logger.GetLoggerInstance();
         MessageManager msg;
         Config config;
         Dictionary<int, string> serverList;
@@ -55,11 +57,8 @@ namespace ConfigServer
 
                 if (serverList.Count != 0)
                 {
-                    Console.WriteLine("-------------------------");
-                    Console.Write("List : ");
                     foreach (int id in serverList.Keys)
-                    {
-                        Console.Write(id + " ");
+                    { 
                         if(id >= p.header.srcCode)
                             continue;
                         byte[] buf = msg.MakeBody(COMMAND.MSLIST_RESPONSE, STATUS.SUCCESS, id.ToString(), serverList[id]);
@@ -67,14 +66,12 @@ namespace ConfigServer
                         byte[] head = msg.StructureToByte(h);
                         s.Send(msg.MakePacket(head, buf));
                     }
-                    Console.WriteLine("\n-------------------------");
-                    Console.WriteLine("===> send message to Match Server({0})....", s.RemoteEndPoint);
                 }
                 
             }
             else
             {
-                Console.WriteLine("===> recv unkwon command : ({0})....", p.body.Cmd);
+                logger.Error("===> recv unkwon command : " + p.body.Cmd);
             }
         }
 

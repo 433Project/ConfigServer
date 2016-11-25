@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
+﻿using log4net;
+using System;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConfigServer
 {
+    
     class Program
     {
+        private static ILog logger = Logger.GetLoggerInstance();
         private static bool isclosing = false;
         static SocketManager conn;
 
         static void Main(string[] args)
         {
+            logger.Info("start");
             SetConsoleCtrlHandler(ConsoleCtrlCheck, true);
             conn = new SocketManager("MS");
             while (!isclosing)
@@ -61,19 +60,19 @@ namespace ConfigServer
 
                 case CtrlTypes.CTRL_BREAK_EVENT:
                     isclosing = true;
-                    Console.WriteLine("CTRL+BREAK received!");
+                    logger.Info("CTRL+BREAK received!");
                     break;
 
                 case CtrlTypes.CTRL_CLOSE_EVENT:
                     isclosing = true;
-                    Console.WriteLine("Program being closed!");
+                    logger.Info("Program being closed!");
                     Environment.Exit(0);
                     break;
 
                 case CtrlTypes.CTRL_LOGOFF_EVENT:
                 case CtrlTypes.CTRL_SHUTDOWN_EVENT:
                     isclosing = true;
-                    Console.WriteLine("User is logging off!");
+                    logger.Info("User is logging off!");
                     break;
             }
             return true;

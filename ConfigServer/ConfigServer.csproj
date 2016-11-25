@@ -36,10 +36,6 @@
     <Reference Include="log4net">
       <HintPath>.\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -62,6 +58,7 @@
     <Compile Include="FlatBuffers\Offset.cs" />
     <Compile Include="FlatBuffers\Struct.cs" />
     <Compile Include="FlatBuffers\Table.cs" />
+    <Compile Include="src\Logger.cs" />
     <Compile Include="src\MessageManager.cs" />
     <Compile Include="src\ProcessManager.cs" />
     <Compile Include="src\Program.cs" />
@@ -74,12 +71,13 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config" />
     <None Include="src\packet.fbs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <Content Include="FlatBuffers\FlatBuffers.csproj" />
+    <Content Include="log\DEBUG.xml" />
+    <Content Include="log\RELEASE.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

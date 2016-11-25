@@ -1,4 +1,5 @@
 ﻿
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -18,6 +19,7 @@ namespace ConfigServer
 
         int PACKET_SIZE = 100;
 
+        private ILog logger = Logger.GetLoggerInstance();
         Dictionary<Socket, int> heartBeatList;
         ProcessManager process;
 
@@ -45,15 +47,15 @@ namespace ConfigServer
                 listen = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 listen.Bind(localEP);
                 listen.Listen(backlog);
-                Console.WriteLine("Listening on {0} port\n", port);
+                logger.Info("Listening Port : " + port);
             }
             catch (SocketException se)
             {
-                Console.WriteLine(" {0}", se.ToString());
+                logger.Error("SocketException : " + se.ToString());
             }
             catch (Exception e)
             {
-                Console.WriteLine(" {0}", e.ToString());
+                logger.Error("Exception : "+ e.ToString());
             }
 
         }
@@ -62,10 +64,9 @@ namespace ConfigServer
         {
             try
             {
-               
-                Console.WriteLine("===> Waiting for Match Server's connection....");
+                //logger.Info("===> Waiting for Match Server's connection....");
                 Socket sock = listen.Accept();
-                Console.WriteLine("===> New Match Server({0}) is connected....", sock.RemoteEndPoint);
+                logger.Info("===> New Match Server is connected : "+ sock.RemoteEndPoint);
                 heartBeatList.Add(sock, 0);
                 process.ProcessAccept(sock, serverType);
                 Receive(sock);
@@ -73,7 +74,7 @@ namespace ConfigServer
             }
             catch (Exception e)
             {
-                Console.WriteLine("[Server][Accept]  error, code : {0}", e.ToString());
+                logger.Error("[Server][Accept]  error, code : "+ e.ToString());
                 return false;
             }
         }
@@ -140,13 +141,13 @@ namespace ConfigServer
                             return false;
                         }
                     }
-                    Console.WriteLine("===>recieve socket error : " + se.ToString());
+                    logger.Error("===>recieve socket error : " + se.ToString());
                     Close(socket);
                     return false; 
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("===>recieve socket error : " + e.ToString());
+                    logger.Error("===>recieve socket error : " + e.ToString());
                     Close(socket);
                     return false;
                 }
@@ -158,7 +159,7 @@ namespace ConfigServer
 
         private void Close(Socket s)
         {
-            Console.WriteLine("===> close socket {0}\n", s.RemoteEndPoint.ToString());
+            logger.Info("===> close socket : "+ s.RemoteEndPoint.ToString());
             process.close(s);
             heartBeatList.Remove(s);
             s.Close();
