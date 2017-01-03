@@ -3,3 +3,11 @@ C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServe
 C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\bin\Debug\ConfigServer.pdb
 C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\obj\Debug\ConfigServer.exe
 C:\Users\Yungyung\Documents\Visual Studio 2015\Projects\ConfigServer\ConfigServer\obj\Debug\ConfigServer.pdb
+C:\Users\mikm\Documents\Projects\_433 NetEngineExperiment Project\06 ConfigServer\ConfigServer\ConfigServer\bin\Debug\ConfigServer.exe.config
+C:\Users\mikm\Documents\Projects\_433 NetEngineExperiment Project\06 ConfigServer\ConfigServer\ConfigServer\bin\Debug\ConfigServer.exe
+C:\Users\mikm\Documents\Projects\_433 NetEngineExperiment Project\06 ConfigServer\ConfigServer\ConfigServer\bin\Debug\ConfigServer.pdb
+C:\Users\mikm\Documents\Projects\_433 NetEngineExperiment Project\06 ConfigServer\ConfigServer\ConfigServer\bin\Debug\log4net.dll
+C:\Users\mikm\Documents\Projects\_433 NetEngineExperiment Project\06 ConfigServer\ConfigServer\ConfigServer\bin\Debug\log4net.xml
+C:\Users\mikm\Documents\Projects\_433 NetEngineExperiment Project\06 ConfigServer\ConfigServer\ConfigServer\obj\Debug\ConfigServer.csprojResolveAssemblyReference.cache
+C:\Users\mikm\Documents\Projects\_433 NetEngineExperiment Project\06 ConfigServer\ConfigServer\ConfigServer\obj\Debug\ConfigServer.exe
+C:\Users\mikm\Documents\Projects\_433 NetEngineExperiment Project\06 ConfigServer\ConfigServer\ConfigServer\obj\Debug\ConfigServer.pdb
