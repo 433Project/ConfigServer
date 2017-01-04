@@ -88,6 +88,7 @@ namespace ConfigServer
                 {
                     if (receiveTask == null || receiveTask.IsCompleted)
                     {
+                        logger.Info("===> Starting async receive task : " + socket.RemoteEndPoint);
                         receiveTask = ReceiveAsync(socket);
                         bool result  = await receiveTask;
                     }
@@ -113,6 +114,8 @@ namespace ConfigServer
                     byte[] bytes = new byte[PACKET_SIZE];
                     socket.ReceiveTimeout = 3 * 1000;
                     int readBytes = socket.Receive(bytes);
+
+                    logger.Info("===> Received " + readBytes + " bytes from: " + socket.RemoteEndPoint);
 
                     if (readBytes == 0)
                     {
@@ -141,13 +144,13 @@ namespace ConfigServer
                             return false;
                         }
                     }
-                    logger.Error("===>recieve socket error : " + se.ToString());
+                    logger.Error("===> Receive socket error: " + se.ToString());
                     Close(socket);
                     return false; 
                 }
                 catch (Exception e)
                 {
-                    logger.Error("===>recieve socket error : " + e.ToString());
+                    logger.Error("===> Receive exception: " + e.ToString());
                     Close(socket);
                     return false;
                 }

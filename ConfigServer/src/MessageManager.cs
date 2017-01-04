@@ -43,8 +43,8 @@ namespace ConfigServer
             Array.Copy(data, header, HEAD_SIZE);
             p.header =  (Header)ByteToStructure(header, typeof(Header));
 
-            byte[] body = new byte[p.header.lenght];
-            Array.Copy(data, HEAD_SIZE, body, 0, p.header.lenght);
+            byte[] body = new byte[p.header.length];
+            Array.Copy(data, HEAD_SIZE, body, 0, p.header.length);
 
             p.body = Body.GetRootAsBody(new ByteBuffer(body));
         }

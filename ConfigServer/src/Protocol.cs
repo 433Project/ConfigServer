@@ -10,14 +10,14 @@ namespace ConfigServer
 
     struct Header
     {
-        public int lenght;
+        public int length;
         public TERMINALTYPE srcType;    
         public int srcCode;   
         public TERMINALTYPE dstType;    
         public int dstCode;
         public Header(int len, TERMINALTYPE srcType, int srcCode, TERMINALTYPE dstType, int dstCode)
         {
-            this.lenght = len;
+            this.length = len;
             this.srcType = srcType;
             this.srcCode = srcCode;
             this.dstType = dstType;
