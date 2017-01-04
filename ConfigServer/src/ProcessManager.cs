@@ -33,45 +33,50 @@ namespace ConfigServer
         {
             Packet p = new Packet();
             msg.ReadPacket(data, out p);
-            if (p.body.Cmd == Command.HealthCheckResponse)
-            {
-                ;
-            }
-            else if (p.body.Cmd == Command.MatchingServerListRequest)
-            {
-                config.InsertPort(s, p.body.Data1);
-                int id = config.GetID(s);
 
-                if (id == -1)
-                {
-                    return;
-                }
-               
-                byte[] buf = msg.MakeBody(Command.MatchingServerIDResponse, Status.None, id.ToString(), "");
-                Header h = new Header(buf.Length, TerminalType.ConfigServer, 0, TerminalType.MatchingServer, 0);
-                byte[] head = msg.StructureToByte(h);
-                s.Send(msg.MakePacket(head, buf));
-            }
-            else if (p.body.Cmd == fb.Command.MatchingServerListRequest)
+            switch (p.body.Cmd)
             {
+                case Command.HealthCheckResponse:
+                    // Not Implemented
+                    break;
+                case Command.MatchingServerIDRequest:
+                    config.InsertPort(s, p.body.Data1);
+                    int id = config.GetID(s);
 
-                if (serverList.Count != 0)
-                {
-                    foreach (int id in serverList.Keys)
-                    { 
-                        if(id >= p.header.srcCode)
-                            continue;
-                        byte[] buf = msg.MakeBody(Command.MatchingServerListResponse, Status.Success, id.ToString(), serverList[id]);
-                        Header h = new Header(buf.Length, TerminalType.ConfigServer, 0, TerminalType.MatchingServer, 0);
-                        byte[] head = msg.StructureToByte(h);
-                        s.Send(msg.MakePacket(head, buf));
+                    if (id == -1)
+                    {
+                        logger.Error("===> Invalid id (-1) for MatchingServer: " + s.RemoteEndPoint);
+                        return;
                     }
-                }
-                
+
+                    logger.Info("===> Sending MatchingServerIDResponse (ID = " + id + ") to " + s.RemoteEndPoint);
+                    byte[] buf = msg.MakeBody(Command.MatchingServerIDResponse, Status.None, id.ToString(), "");
+                    Header h = new Header(buf.Length, TerminalType.ConfigServer, 0, TerminalType.MatchingServer, 0);
+                    byte[] head = msg.StructureToByte(h);
+                    s.Send(msg.MakePacket(head, buf));
+                    break;
+                case Command.MatchingServerListRequest:
+                    SendMatchingServerListResponse(s, p);
+                    break;
+                default:
+                    logger.Error("===> Received unknown Command : " + p.body.Cmd);
+                    break;
             }
-            else
+        }
+
+        private void SendMatchingServerListResponse (Socket s, Packet p)
+        {
+            if (serverList.Count != 0)
             {
-                logger.Error("===> recv unkwon Command : " + p.body.Cmd);
+                foreach (int id in serverList.Keys)
+                {
+                    if (id >= p.header.srcCode)
+                        continue;
+                    byte[] buf = msg.MakeBody(Command.MatchingServerListResponse, Status.Success, id.ToString(), serverList[id]);
+                    Header h = new Header(buf.Length, TerminalType.ConfigServer, 0, TerminalType.MatchingServer, 0);
+                    byte[] head = msg.StructureToByte(h);
+                    s.Send(msg.MakePacket(head, buf));
+                }
             }
         }
 
