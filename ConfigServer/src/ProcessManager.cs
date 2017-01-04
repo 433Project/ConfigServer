@@ -33,11 +33,11 @@ namespace ConfigServer
         {
             Packet p = new Packet();
             msg.ReadPacket(data, out p);
-            if (p.body.Cmd == COMMAND.HEALTH_CHECK_RESPONSE)
+            if (p.body.Cmd == Command.HealthCheckResponse)
             {
                 ;
             }
-            else if (p.body.Cmd == COMMAND.MS_ID_REQUEST)
+            else if (p.body.Cmd == Command.MatchingServerListRequest)
             {
                 config.InsertPort(s, p.body.Data1);
                 int id = config.GetID(s);
@@ -47,12 +47,12 @@ namespace ConfigServer
                     return;
                 }
                
-                byte[] buf = msg.MakeBody(COMMAND.MS_ID_RESPONSE, STATUS.NONE, id.ToString(), "");
-                Header h = new Header(buf.Length, TerminalType.CONFIG_SERVER, 0, TerminalType.MATCHING_SERVER, 0);
+                byte[] buf = msg.MakeBody(Command.MatchingServerIDResponse, Status.None, id.ToString(), "");
+                Header h = new Header(buf.Length, TerminalType.ConfigServer, 0, TerminalType.MatchingServer, 0);
                 byte[] head = msg.StructureToByte(h);
                 s.Send(msg.MakePacket(head, buf));
             }
-            else if (p.body.Cmd == fb.COMMAND.MSLIST_REQUEST)
+            else if (p.body.Cmd == fb.Command.MatchingServerListRequest)
             {
 
                 if (serverList.Count != 0)
@@ -61,8 +61,8 @@ namespace ConfigServer
                     { 
                         if(id >= p.header.srcCode)
                             continue;
-                        byte[] buf = msg.MakeBody(COMMAND.MSLIST_RESPONSE, STATUS.SUCCESS, id.ToString(), serverList[id]);
-                        Header h = new Header(buf.Length, TerminalType.CONFIG_SERVER, 0, TerminalType.MATCHING_SERVER, 0);
+                        byte[] buf = msg.MakeBody(Command.MatchingServerListResponse, Status.Success, id.ToString(), serverList[id]);
+                        Header h = new Header(buf.Length, TerminalType.ConfigServer, 0, TerminalType.MatchingServer, 0);
                         byte[] head = msg.StructureToByte(h);
                         s.Send(msg.MakePacket(head, buf));
                     }
@@ -71,14 +71,14 @@ namespace ConfigServer
             }
             else
             {
-                logger.Error("===> recv unkwon command : " + p.body.Cmd);
+                logger.Error("===> recv unkwon Command : " + p.body.Cmd);
             }
         }
 
         public void SendHeartBeat(Socket s)
         {
-            byte[] buf = msg.MakeBody(COMMAND.HEALTH_CHECK_REQUEST, STATUS.NONE, "", "");
-            Header h = new Header(buf.Length, TerminalType.CONFIG_SERVER, 0, TerminalType.MATCHING_SERVER, 0);
+            byte[] buf = msg.MakeBody(Command.HealthCheckRequest, Status.None, "", "");
+            Header h = new Header(buf.Length, TerminalType.ConfigServer, 0, TerminalType.MatchingServer, 0);
             byte[] head = msg.StructureToByte(h);
             s.Send(msg.MakePacket(head, buf));
         }

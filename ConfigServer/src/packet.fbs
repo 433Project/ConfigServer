@@ -30,7 +30,7 @@ enum Status : int
 table Body
 {
 	cmd: Command;
-	status: Status;
+	Status: Status;
 	data: string;
 }
 

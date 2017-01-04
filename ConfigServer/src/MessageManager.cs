@@ -15,7 +15,7 @@ namespace ConfigServer
         {
         }
 
-        public byte[] MakeBody(fb.COMMAND com, fb.STATUS st, string data1, string data2)
+        public byte[] MakeBody(fb.Command com, fb.Status st, string data1, string data2)
         {
             FlatBufferBuilder builder = new FlatBufferBuilder(1);
             StringOffset s1 = builder.CreateString(data1);
