@@ -12,7 +12,7 @@ public enum Command : int
     NotifyMatchResponse = 11,
     MatchRequest = 12,
     MatchResponse = 13,
-    MatchinServerIDRequest = 30,
+    MatchingServerIDRequest = 30,
     MatchingServerIDResponse = 31,
     MatchingServerListRequest = 32,
     MatchingServerListResponse = 33,
