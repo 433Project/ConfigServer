@@ -11,13 +11,13 @@ namespace ConfigServer
     struct Header
     {
         public int length;
-        public TERMINALTYPE srcType;    
+        public TerminalType srcType;    
         public int srcCode;   
-        public TERMINALTYPE dstType;    
+        public TerminalType dstType;    
         public int dstCode;
-        public Header(int len, TERMINALTYPE srcType, int srcCode, TERMINALTYPE dstType, int dstCode)
+        public Header(int length, TerminalType srcType, int srcCode, TerminalType dstType, int dstCode)
         {
-            this.length = len;
+            this.length = length;
             this.srcType = srcType;
             this.srcCode = srcCode;
             this.dstType = dstType;
@@ -25,14 +25,15 @@ namespace ConfigServer
         }    
     }
 
-    enum TERMINALTYPE : int
+    enum TerminalType : int
     {
-        MATCHING_SERVER = 0,
-        MATCHING_CLIENT,
-        ROOM_SERVER,
-        PACKET_GENERATOR,
-        MONITORING_SERVER,
-        CONFIG_SERVER,
-        CONNECTION_SERVER
+        None = 0,
+        MatchingServer = 1,
+        MatchingClient,
+        RoomServer,
+        PacketGenerator,
+        MonitoringServer,
+        ConfigServer,
+        ConnectionServer
     }
 }

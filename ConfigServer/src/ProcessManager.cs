@@ -48,7 +48,7 @@ namespace ConfigServer
                 }
                
                 byte[] buf = msg.MakeBody(COMMAND.MS_ID_RESPONSE, STATUS.NONE, id.ToString(), "");
-                Header h = new Header(buf.Length, TERMINALTYPE.CONFIG_SERVER, 0, TERMINALTYPE.MATCHING_SERVER, 0);
+                Header h = new Header(buf.Length, TerminalType.CONFIG_SERVER, 0, TerminalType.MATCHING_SERVER, 0);
                 byte[] head = msg.StructureToByte(h);
                 s.Send(msg.MakePacket(head, buf));
             }
@@ -62,7 +62,7 @@ namespace ConfigServer
                         if(id >= p.header.srcCode)
                             continue;
                         byte[] buf = msg.MakeBody(COMMAND.MSLIST_RESPONSE, STATUS.SUCCESS, id.ToString(), serverList[id]);
-                        Header h = new Header(buf.Length, TERMINALTYPE.CONFIG_SERVER, 0, TERMINALTYPE.MATCHING_SERVER, 0);
+                        Header h = new Header(buf.Length, TerminalType.CONFIG_SERVER, 0, TerminalType.MATCHING_SERVER, 0);
                         byte[] head = msg.StructureToByte(h);
                         s.Send(msg.MakePacket(head, buf));
                     }
@@ -78,7 +78,7 @@ namespace ConfigServer
         public void SendHeartBeat(Socket s)
         {
             byte[] buf = msg.MakeBody(COMMAND.HEALTH_CHECK_REQUEST, STATUS.NONE, "", "");
-            Header h = new Header(buf.Length, TERMINALTYPE.CONFIG_SERVER, 0, TERMINALTYPE.MATCHING_SERVER, 0);
+            Header h = new Header(buf.Length, TerminalType.CONFIG_SERVER, 0, TerminalType.MATCHING_SERVER, 0);
             byte[] head = msg.StructureToByte(h);
             s.Send(msg.MakePacket(head, buf));
         }
