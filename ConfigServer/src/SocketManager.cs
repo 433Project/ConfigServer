@@ -20,7 +20,7 @@ namespace ConfigServer
         int PACKET_SIZE = 100;
 
         private ILog logger = Logger.GetLoggerInstance();
-        Dictionary<Socket, int> heartBeatList;
+        public static Dictionary<Socket, int> heartBeatList;
         ProcessManager process;
 
         public SocketManager(string serverType)

@@ -37,8 +37,9 @@ namespace ConfigServer
             switch (p.body.Cmd)
             {
                 case Command.HealthCheckResponse:
-                    // Not Implemented
+                    SocketManager.heartBeatList[s] = 0;
                     break;
+
                 case Command.MatchingServerIDRequest:
                     config.InsertPort(s, p.body.Data1);
                     int id = config.GetID(s);
@@ -55,9 +56,11 @@ namespace ConfigServer
                     byte[] head = msg.StructureToByte(h);
                     s.Send(msg.MakePacket(head, buf));
                     break;
+
                 case Command.MatchingServerListRequest:
                     SendMatchingServerListResponse(s, p);
                     break;
+
                 default:
                     logger.Error("===> Received unknown Command : " + p.body.Cmd);
                     break;
