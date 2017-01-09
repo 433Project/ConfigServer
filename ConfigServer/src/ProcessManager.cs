@@ -75,6 +75,7 @@ namespace ConfigServer
                 {
                     if (id >= p.header.srcCode)
                         continue;
+                    logger.Info("===> Sending MatchingServerListResponse (ID = " + id + " IP = " + serverList[id] +") to " + s.RemoteEndPoint);
                     byte[] buf = msg.MakeBody(Command.MatchingServerListResponse, Status.Success, id.ToString(), serverList[id]);
                     Header h = new Header(buf.Length, TerminalType.ConfigServer, 0, TerminalType.MatchingServer, 0);
                     byte[] head = msg.StructureToByte(h);

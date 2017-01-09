@@ -37,7 +37,7 @@ namespace ConfigServer
             try
             {
 
-                serverList.Add(serverIDs[s], s.RemoteEndPoint.ToString().Split(':')[0] + ":" + port);
+                serverList.Add(serverIDs[s], s.RemoteEndPoint.ToString().Split(':')[0]); //Removed:  + ":" + port
                 return true;
             }
             catch
