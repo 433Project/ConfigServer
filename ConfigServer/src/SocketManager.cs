@@ -112,7 +112,7 @@ namespace ConfigServer
                 {
                     //Console.WriteLine("\n===> Receiving from Match Server({0})....", socket.RemoteEndPoint);
                     byte[] bytes = new byte[PACKET_SIZE];
-                    socket.ReceiveTimeout = 3 * 1000;
+                    socket.ReceiveTimeout = 10 * 1000;
                     int readBytes = socket.Receive(bytes);
 
                     logger.Info("===> Received " + readBytes + " bytes from: " + socket.RemoteEndPoint);
