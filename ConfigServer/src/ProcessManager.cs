@@ -68,7 +68,7 @@ namespace ConfigServer
                     // In the DEBUG version, make the verification random at 50% for TESTING PURPOSES
                     Random random = new Random();
                     isVerified = (random.NextDouble() <= 0.5f) ? true : false;
-                    //Console.WriteLine(isVerified);
+                    Console.WriteLine(isVerified);
 #endif
 
                     Status status;
@@ -81,7 +81,7 @@ namespace ConfigServer
                         status = Status.Fail;
                     }
                     logger.Info("===> Sending MatchingServerIDVerifyResponse (ID = " + id + ") to " + s.RemoteEndPoint);
-                    buf = msg.MakeBody(Command.MatchingServerIDVerifyResponse, status, id.ToString(), "");
+                    buf = msg.MakeBody(Command.MatchingServerIDVerifyResponse, status, p.body.Data1, "");
                     h = new Header(buf.Length, TerminalType.ConfigServer, 0, TerminalType.MatchingServer, 0);
                     head = msg.StructureToByte(h);
                     s.Send(msg.MakePacket(head, buf));
