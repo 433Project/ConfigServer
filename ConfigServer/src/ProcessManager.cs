@@ -33,6 +33,7 @@ namespace ConfigServer
         {
             Packet p = new Packet();
             msg.ReadPacket(data, out p);
+            int id = config.GetID(s);
 
             switch (p.body.Cmd)
             {
@@ -42,7 +43,6 @@ namespace ConfigServer
 
                 case Command.MatchingServerIDRequest:
                     config.InsertPort(s, p.body.Data1);
-                    int id = config.GetID(s);
 
                     if (id == -1)
                     {
@@ -59,6 +59,33 @@ namespace ConfigServer
 
                 case Command.MatchingServerListRequest:
                     SendMatchingServerListResponse(s, p);
+                    break;
+
+                case Command.MatchingServerIDVerify:
+                    bool isVerified = config.VerifyServerID(p.body.Data1);
+
+#if DEBUG
+                    // In the DEBUG version, make the verification random at 50% for TESTING PURPOSES
+                    Random random = new Random();
+                    isVerified = (random.NextDouble() <= 0.5f) ? true : false;
+                    //Console.WriteLine(isVerified);
+#endif
+
+                    Status status;
+                    if (isVerified)
+                    {
+                        status = Status.Success;
+                    }
+                    else
+                    {
+                        status = Status.Fail;
+                    }
+                    logger.Info("===> Sending MatchingServerIDVerifyResponse (ID = " + id + ") to " + s.RemoteEndPoint);
+                    buf = msg.MakeBody(Command.MatchingServerIDVerifyResponse, status, id.ToString(), "");
+                    h = new Header(buf.Length, TerminalType.ConfigServer, 0, TerminalType.MatchingServer, 0);
+                    head = msg.StructureToByte(h);
+                    s.Send(msg.MakePacket(head, buf));
+
                     break;
 
                 default:

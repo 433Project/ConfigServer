@@ -32,6 +32,21 @@ namespace ConfigServer
             
         }
 
+        /// <summary>
+        /// Checks if the server ID is a valid key in the serverList dictionary. Written by Mik.
+        /// </summary>
+        /// <param name="id">A string value of the server's ID.</param>
+        /// <returns>True if the key exists, false if not.</returns>
+        public bool VerifyServerID (string id)
+        {
+            int idCode;
+            if(!int.TryParse(id, out idCode))
+            {
+                return false;
+            }
+            return serverList.ContainsKey(idCode);
+        }
+
         public bool InsertPort(Socket s, string port)
         {
             try
